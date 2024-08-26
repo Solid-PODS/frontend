@@ -1,5 +1,8 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import Link from "next/link"
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -14,6 +17,26 @@ import {
 import { Github, Mail } from "lucide-react"
 
 export default function UserLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  // const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  // useEffect(() => {
+  //   setIsLoading(false);
+  // }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Login attempted with:', email, password);
+    // Login logic will be implemented later
+  };
+
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
@@ -23,30 +46,47 @@ export default function UserLogin() {
             Enter your email below to login to your account
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
-            <Input id="email" placeholder="m@example.com" type="email" autoCapitalize="none" autoComplete="email" autoCorrect="off" />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
-            <Input id="password" type="password" autoCapitalize="none" autoComplete="current-password" />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="remember" />
-            <label
-              htmlFor="remember"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Remember me
-            </label>
-          </div>
-          <Button className="w-full" type="submit">
-            Sign in
-          </Button>
-        </CardContent>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            {error && <div className="text-red-500 text-sm">{error}</div>}
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
+              <Input 
+                id="email" 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
+              <Input 
+                id="password" 
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox id="remember" />
+              <label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Remember me
+              </label>
+            </div>
+            {/* <Button className="w-full" type="submit">
+              Sign in
+            </Button> */}
+            <Button asChild className="w-full">
+              <Link href="/user/profile">
+                Sign In
+              </Link>
+            </Button>
+          </CardContent>
+        </form>
         <CardFooter className="flex flex-col space-y-4">
-          <div className="relative">
+        <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -70,7 +110,7 @@ export default function UserLogin() {
             </Link>
           </div>
           <div className="text-center text-sm">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link className="underline underline-offset-4 hover:text-primary" href="#">
               Sign up
             </Link>
