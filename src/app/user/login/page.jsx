@@ -27,23 +27,10 @@ export default function UserLogin() {
   //   setIsLoading(false);
   // }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-
-    const response = await fetch('/api/user/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, action: 'login' }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      router.push('/dashboard');
-    } else {
-      setError(data.message);
-    }
+    console.log('Login attempted with:', email, password);
+    // Login logic will be implemented later
   };
 
   // if (isLoading) {
@@ -88,8 +75,13 @@ export default function UserLogin() {
                 Remember me
               </label>
             </div>
-            <Button className="w-full" type="submit">
+            {/* <Button className="w-full" type="submit">
               Sign in
+            </Button> */}
+            <Button asChild className="w-full">
+              <Link href="/user/profile">
+                Sign In
+              </Link>
             </Button>
           </CardContent>
         </form>

@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from "next/link"
-import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,36 +12,12 @@ import { Store, Mail, Lock } from "lucide-react"
 export default function MerchantLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  // const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
-  // useEffect(() => {
-  //   setIsLoading(false);
-  // }, []);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-
-    const response = await fetch('/api/merchant/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, action: 'login' }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      router.push('/merchant/dashboard');
-    } else {
-      setError(data.message);
-    }
+    console.log('Login attempted with:', email, password);
+    // Login logic will be implemented later
   };
-
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -55,7 +30,6 @@ export default function MerchantLogin() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            {error && <div className="text-red-500 text-sm">{error}</div>}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -99,7 +73,10 @@ export default function MerchantLogin() {
           </CardContent>
         </form>
         <CardFooter className="flex flex-col space-y-4">
-          <Button className="w-full">Create Account</Button>
+          <Button variant="outline" className="w-full">
+            <Store className="mr-2 h-4 w-4" />
+            Create Account
+          </Button>
         </CardFooter>
       </Card>
     </div>
