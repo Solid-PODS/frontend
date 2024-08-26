@@ -63,7 +63,7 @@ export default function MerchantLogin() {
           </Button>
         </CardFooter>
         <div className="text-center text-sm mt-4">
-          Don't have a merchant account?{" "}
+          Don&apos;t have a merchant account?{" "}
           <Link href="/merchant-signup" className="text-primary underline hover:text-primary/90">
             Sign up
           </Link>

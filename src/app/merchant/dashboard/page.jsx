@@ -184,7 +184,7 @@ export default function MerchantDashboard() {
                       <DialogHeader>
                         <DialogTitle>Create New Offer</DialogTitle>
                         <DialogDescription>
-                          Create a new offer for a product category. Click save when you're done.
+                          Create a new offer for a product category. Click save when you&apos;re done.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">

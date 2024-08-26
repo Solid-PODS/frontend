@@ -70,7 +70,7 @@ export default function UserLogin() {
             </Link>
           </div>
           <div className="text-center text-sm">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link className="underline underline-offset-4 hover:text-primary" href="#">
               Sign up
             </Link>
