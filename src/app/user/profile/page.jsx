@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { Settings, DollarSign, Clock, Lock } from "lucide-react"
+import { Settings, DollarSign, Clock, Lock, LogOut } from "lucide-react"
+import { signOut } from '@/lib/auth' // Import the signOut function
 
 export default function Component() {
   const [apiAccess, setApiAccess] = useState({
@@ -19,12 +21,22 @@ export default function Component() {
     documents: false,
     contacts: false,
   })
+  const router = useRouter()
 
   const toggleAccess = (type, key) => {
     if (type === 'api') {
       setApiAccess(prev => ({ ...prev, [key]: !prev[key] }))
     } else {
       setPodAccess(prev => ({ ...prev, [key]: !prev[key] }))
+    }
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/') // Redirect to login page after signing out
+    } catch (error) {
+      console.error('Error signing out:', error)
     }
   }
 
@@ -41,10 +53,16 @@ export default function Component() {
             <p className="text-muted-foreground">john.doe@example.com</p>
           </div>
         </div>
-        <Button variant="outline">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Button>
+        <div className="space-x-2">
+          <Button variant="outline">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Button>
+          <Button variant="destructive" onClick={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign Out
+          </Button>
+        </div>
       </header>
 
       <div className="grid gap-6 md:grid-cols-2">
