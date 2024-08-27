@@ -1,4 +1,7 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,8 +10,42 @@ import { Badge } from "@/components/ui/badge"
 import { Search, ShoppingBag, User, Bell, ChevronDown, Mountain } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { signOut, getCurrentUser, getUserData } from '@/lib/auth'
 
 export default function PersonalizedOffers() {
+  const [user, setUser] = useState(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const currentUser = getCurrentUser()
+      if (!currentUser) {
+        router.push('/')
+      } else {
+        setUser(currentUser)
+      }
+    }
+    checkAuth()
+  }, [router])
+
+  useEffect(() => {
+    if (user) {
+      const fetchUserData = async () => {
+        try {
+          const userData = await getUserData()
+          setUser(userData)
+        } catch (error) {
+          console.error('Error fetching user data:', error)
+        }
+      }
+      fetchUserData()
+    }
+  }, [user])
+
+  if (!user) {
+    return <div>No user found. Please log in.</div>
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="border-b">
@@ -41,10 +78,10 @@ export default function PersonalizedOffers() {
               <ShoppingBag className="h-5 w-5" />
               <span className="sr-only">Cart</span>
             </Button>
-            <Button variant="ghost" className="hidden md:flex items-center space-x-2">
+            {/* button to show Profile (Button) when clicked */}
+            <Button variant="ghost" className="hidden md:flex items-center space-x-2" onClick={() => router.push('/user/profile')}>
               <User className="h-5 w-5" />
-              <span>Account</span>
-              <ChevronDown className="h-4 w-4" />
+              <span>Profile</span>
             </Button>
           </div>
         </div>
@@ -78,7 +115,7 @@ export default function PersonalizedOffers() {
         </section>
         <section className="py-12">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-6">Personalized Offers for You</h2>
+            <h2 className="text-2xl font-bold mb-6">Personalized Offers for {user.username || 'Anonymous User'}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
                 { store: "FashionHub", cashback: "10%", image: "/placeholder.svg?height=100&width=100" },

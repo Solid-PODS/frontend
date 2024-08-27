@@ -15,27 +15,40 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Github, Mail } from "lucide-react"
+import { useAuth } from '@/lib/useAuth'; // Import the useAuth hook
+import { signIn } from '@/lib/auth'; // Import the signIn function
 
 export default function UserLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  // const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { user, authenticated } = useAuth(); // Use the useAuth hook
 
-  // useEffect(() => {
-  //   setIsLoading(false);
-  // }, []);
+  useEffect(() => {
+    if (authenticated) {
+      router.push('/user/profile'); // Redirect to profile if already authenticated
+    }
+  }, [authenticated, router]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempted with:', email, password);
-    // Login logic will be implemented later
+    setIsLoading(true);
+    setError('');
+    try {
+      await signIn(email, password);
+      router.push('/user/profile'); // Redirect to profile on successful login
+    } catch (err) {
+      setError(err.message || 'Failed to sign in');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
+  if (authenticated) {
+    return <div>Redirecting...</div>;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -75,18 +88,13 @@ export default function UserLogin() {
                 Remember me
               </label>
             </div>
-            {/* <Button className="w-full" type="submit">
-              Sign in
-            </Button> */}
-            <Button asChild className="w-full">
-              <Link href="/user/profile">
-                Sign In
-              </Link>
+            <Button className="w-full" type="submit" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
           </CardContent>
         </form>
         <CardFooter className="flex flex-col space-y-4">
-        <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -103,7 +111,7 @@ export default function UserLogin() {
               <Mail className="mr-2 h-4 w-4" />
               Google
             </Button>
-          </div>
+          </div> */}
           <div className="text-center text-sm">
             <Link className="underline underline-offset-4 hover:text-primary" href="#">
               Forgot your password?
@@ -111,7 +119,7 @@ export default function UserLogin() {
           </div>
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link className="underline underline-offset-4 hover:text-primary" href="#">
+            <Link className="underline underline-offset-4 hover:text-primary" href="/user/signup">
               Sign up
             </Link>
           </div>
