@@ -94,7 +94,7 @@ export default function UserLogin() {
           </CardContent>
         </form>
         <CardFooter className="flex flex-col space-y-4">
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -111,7 +111,7 @@ export default function UserLogin() {
               <Mail className="mr-2 h-4 w-4" />
               Google
             </Button>
-          </div>
+          </div> */}
           <div className="text-center text-sm">
             <Link className="underline underline-offset-4 hover:text-primary" href="#">
               Forgot your password?
@@ -119,7 +119,7 @@ export default function UserLogin() {
           </div>
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link className="underline underline-offset-4 hover:text-primary" href="#">
+            <Link className="underline underline-offset-4 hover:text-primary" href="/user/signup">
               Sign up
             </Link>
           </div>

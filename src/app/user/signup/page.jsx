@@ -152,7 +152,7 @@ export default function UserSignUp() {
           </CardContent>
         </form>
         <CardFooter className="flex flex-col space-y-4">
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -169,7 +169,7 @@ export default function UserSignUp() {
               <Mail className="mr-2 h-4 w-4" />
               Google
             </Button>
-          </div>
+          </div> */}
           <div className="text-center text-sm">
             Already have an account?{" "}
             <Link className="underline underline-offset-4 hover:text-primary" href="/user/login">

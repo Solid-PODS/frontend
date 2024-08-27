@@ -47,6 +47,13 @@ export function getCurrentUser() {
   return user;
 }
 
+export async function getUserData() {
+  const userID = pb.authStore.model.id;
+  // get user data 
+  const user = await pb.collection('users').getOne(userID);
+  return user;
+}
+
 export function isAuthenticated() {
   const isValid = pb.authStore.isValid;
   // console.log('Is authenticated:', isValid);

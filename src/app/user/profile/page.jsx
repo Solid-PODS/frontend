@@ -7,8 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { Settings, DollarSign, Lock, LogOut, Mail } from "lucide-react"
-import { signOut, getCurrentUser } from '@/lib/auth'
+import { House, DollarSign, Lock, LogOut, Mail } from "lucide-react"
+import { signOut, getCurrentUser, getUserData } from '@/lib/auth'
 import { toast } from '@/components/ui/use-toast'
 
 export default function ProtectedUserProfile() {
@@ -52,6 +52,25 @@ export default function ProtectedUserProfile() {
     checkAuth()
   }, [router])
 
+  useEffect(() => {
+    if (user) {
+      const fetchUserData = async () => {
+        try {
+          const userData = await getUserData()
+          setUser(userData)
+        } catch (error) {
+          console.error('Error fetching user data:', error)
+          toast({
+            title: "Error",
+            description: "Failed to fetch user data. Please try again.",
+            variant: "destructive",
+          })
+        }
+      }
+      fetchUserData()
+    }
+  }, [user])
+
   const toggleAccess = (type, key) => {
     if (type === 'api') {
       setApiAccess(prev => ({ ...prev, [key]: !prev[key] }))
@@ -76,7 +95,12 @@ export default function ProtectedUserProfile() {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-screen">
+        {/* <div className="loader" /> */}
+        Loading...
+      </div>
+    )
   }
 
   if (!user) {
@@ -97,9 +121,13 @@ export default function ProtectedUserProfile() {
           </div>
         </div>
         <div className="space-x-2">
-          <Button variant="outline">
+          {/* <Button variant="outline">
             <Settings className="mr-2 h-4 w-4" />
             Settings
+          </Button> */}
+          <Button variant="outline" onClick={() => router.push('/user/offers')}>
+            <House className="mr-2 h-4 w-4" />
+            Home
           </Button>
           <Button variant="destructive" onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />
