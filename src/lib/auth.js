@@ -8,7 +8,8 @@ const getExpireString = (exhours) => {
 }
 
 function getCookie(cookieName) {
-  if (document) {
+  // Check if we are in a browser environment
+  if (typeof document !== 'undefined') {
     const cookies = document.cookie.split(';');
     for (let cookie of cookies) {
       const [name, value] = cookie.trim().split('=');
@@ -17,7 +18,7 @@ function getCookie(cookieName) {
       }
     }
   }
-  return null;
+  return null; // Return null if not found or if running on the server
 }
 
 export async function signUp(email, password, name) {
