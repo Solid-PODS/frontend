@@ -90,7 +90,7 @@ export default function MerchantSignup() {
         </CardFooter>
         <div className="text-center text-sm mt-4">
           Already have an account?{" "}
-          <Link href="/merchant-login" className="text-primary underline hover:text-primary/90">
+          <Link href="/merchant/login" className="text-primary underline hover:text-primary/90">
             Sign in
           </Link>
         </div>
