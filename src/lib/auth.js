@@ -12,6 +12,18 @@ export async function signUp(email, password, name) {
   return await pb.collection('users').create(data);
 }
 
+export async function signUpMerchant(email, password, name, merchantName, contactName, businessType) {
+  const data = {
+    username: name,
+    email: email,
+    email_visibility: true,
+    password: password,
+    passwordConfirm: password,
+  };
+
+  return await pb.collection('merchants').create(data);
+}
+
 export async function signIn(email, password) {
   try {
     const authData = await pb.collection('users').authWithPassword(email, password);
@@ -31,6 +43,21 @@ export async function signIn(email, password) {
     throw error;
   }
 }
+
+export async function signInMerchant(email, password) {
+  try {
+    const authData = await pb.collection('merchants').authWithPassword(email, password);
+    // Explicitly set the cookie
+    const cookieString = pb.authStore.exportToCookie({ httpOnly: false });
+    document.cookie = cookieString;
+    
+    return authData;
+  } catch (error) {
+    console.error('Sign in error:', error);
+    throw error;
+  }
+}
+
 
 export function signOut() {
   pb.authStore.clear();
