@@ -16,7 +16,7 @@ export default function MerchantLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  // const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { user, authenticated } = useAuth(); // Use the useAuth hook
 
@@ -33,7 +33,16 @@ export default function MerchantLogin() {
     try {
       await signInMerchant(email, password);
       router.push('/merchant/dashboard');
-      setError(err.message || 'Failed to sign in');
+    } catch {
+      if ("email" in data) {
+        setError(data.email.message);
+      } else if ("username" in data) {
+        setError(data.username.message);
+      } else if ("password" in data) {
+        setError(data.password.message);
+      } else {
+        setError(message || 'Failed to sign up');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -55,16 +64,6 @@ export default function MerchantLogin() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && <div className="text-red-500 text-sm">{error}</div>}
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
-              <Input 
-                id="email" 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">

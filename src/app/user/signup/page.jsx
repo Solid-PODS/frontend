@@ -52,7 +52,7 @@ export default function UserSignUp() {
     setIsLoading(true);
     try {
       await signUp(email, password, name);
-      router.push('/user/profile'); // Redirect to profile on successful sign-up
+      router.push('/user/login');
     } catch (err) {
       const data = err.response.data
       if ("email" in data) {
@@ -62,7 +62,7 @@ export default function UserSignUp() {
       } else if ("password" in data) {
         setError(data.password.message);
       } else {
-        setError(message || 'Failed to sign up');
+        setError(err.message || 'Failed to sign up');
       }
     } finally {
       setIsLoading(false);

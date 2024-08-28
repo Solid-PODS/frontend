@@ -38,6 +38,9 @@ export async function signUpMerchant(email, password, name, merchantName, contac
     email_visibility: true,
     password: password,
     passwordConfirm: password,
+    contactName: contactName,
+    merchantName: merchantName,
+    businessType: businessType
   };
 
   return await pb.collection('merchants').create(data);
