@@ -40,7 +40,15 @@ export default function UserLogin() {
       await signIn(email, password);
       router.push('/user/profile'); // Redirect to profile on successful login
     } catch (err) {
-      setError(err.message || 'Failed to sign in');
+      if ("email" in data) {
+        setError(data.email.message);
+      } else if ("username" in data) {
+        setError(data.username.message);
+      } else if ("password" in data) {
+        setError(data.password.message);
+      } else {
+        setError(message || 'Failed to sign up');
+      }
     } finally {
       setIsLoading(false);
     }

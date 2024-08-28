@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,16 +9,48 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Store, Mail, Lock } from "lucide-react"
+import { signInMerchant } from '@/lib/auth';
+import { useAuth } from '@/lib/useAuth'; // Import the useAuth hook
 
 export default function MerchantLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { user, authenticated } = useAuth(); // Use the useAuth hook
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (authenticated) {
+      router.push('/merchant/dashboard');
+    }
+  }, [authenticated, router]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempted with:', email, password);
-    // Login logic will be implemented later
+    setIsLoading(true);
+    setError('');
+    try {
+      await signInMerchant(email, password);
+      router.push('/merchant/dashboard');
+    } catch {
+      if ("email" in data) {
+        setError(data.email.message);
+      } else if ("username" in data) {
+        setError(data.username.message);
+      } else if ("password" in data) {
+        setError(data.password.message);
+      } else {
+        setError(message || 'Failed to sign up');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (authenticated) {
+    return <div>Redirecting...</div>;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -30,6 +63,7 @@ export default function MerchantLogin() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && <div className="text-red-500 text-sm">{error}</div>}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">

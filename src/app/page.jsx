@@ -1,11 +1,12 @@
 "use client"
 
-import { useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Store, User, ArrowRight, CheckCircle, ShoppingBag, TrendingUp } from "lucide-react";
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, useEffect } from 'react'
+import Link from 'next/link'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Footer } from "@/components/footer"
+import { Store, User, ArrowRight, CheckCircle, ShoppingBag, TrendingUp } from "lucide-react"
+import { motion, useScroll, useTransform } from 'framer-motion'
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <Card>
@@ -172,11 +173,12 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted py-8">
+      <Footer/>
+      {/* <footer className="bg-muted py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
           <p>&copy; 2024 Our Platform. All rights reserved.</p>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
