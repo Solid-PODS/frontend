@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { House, DollarSign, Lock, LogOut, Mail } from "lucide-react"
+import { House, DollarSign, Lock, LogOut, Mail, LoaderCircle } from "lucide-react"
 import { signOut, getCurrentUser, getUserData } from '@/lib/auth'
 import { toast } from '@/components/ui/use-toast'
 
@@ -97,8 +97,7 @@ export default function ProtectedUserProfile() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        {/* <div className="loader" /> */}
-        Loading...
+        <LoaderCircle className="animate-spin h-8 w-8" />
       </div>
     )
   }

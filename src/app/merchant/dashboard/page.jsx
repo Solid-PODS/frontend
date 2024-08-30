@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { ArrowUpRight, Package, DollarSign, ShoppingCart, Users, Search, Plus, Pencil, Trash2 } from "lucide-react"
+import { ArrowUpRight, Package, DollarSign, ShoppingCart, Users, Search, Plus, Pencil, Trash2, LoaderCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -19,13 +20,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getCurrentMerchant, getMerchantData, getCategories, updateMerchantData, getMerchantOrders, getMerchantOffers, addMerchantOffer, updateMerchantOffer, deleteMerchantOffer } from '@/lib/auth'
 
 
 export default function MerchantDashboard() {
   const [offers, setOffers] = useState([
-    { id: 1, category: "Electronics", discount: "10%", startDate: "2023-06-01", endDate: "2023-06-30" },
-    { id: 2, category: "Clothing", discount: "15%", startDate: "2023-06-15", endDate: "2023-07-15" },
-    { id: 3, category: "Home & Garden", discount: "20%", startDate: "2023-07-01", endDate: "2023-07-31" },
+    // { id: 1, category: "Electronics", discount: "10%", startDate: "2023-06-01", endDate: "2023-06-30" },
+    // { id: 2, category: "Clothing", discount: "15%", startDate: "2023-06-15", endDate: "2023-07-15" },
+    // { id: 3, category: "Home & Garden", discount: "20%", startDate: "2023-07-01", endDate: "2023-07-31" },
   ])
 
   const salesData = [
@@ -44,12 +46,119 @@ export default function MerchantDashboard() {
     { id: '1237', customer: 'Alice Brown', date: '2023-06-04', total: '$75.25', status: 'Completed' },
   ]
 
-  const handleCreateOffer = (newOffer) => {
-    setOffers([...offers, { id: offers.length + 1, ...newOffer }])
+  const [categories , setCategories] = useState([])
+  const [merchant, setMerchant] = useState(null)
+  const [formData, setFormData] = useState({})
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const currentMerchant = getCurrentMerchant()
+      if (!currentMerchant) {
+        router.push('/merchant/login')
+      } else {
+        setMerchant(currentMerchant)
+      }
+      setIsLoading(false)
+    }
+    checkAuth()
+  }, [router])
+
+  useEffect(() => {
+    if (merchant) {
+      const fetchMerchantData = async () => {
+        try {
+          const merchantData = await getMerchantData()
+          setMerchant(merchantData)
+        } catch (error) {
+          console.error('Error fetching merchant data:', error)
+        }
+      }
+      fetchMerchantData()
+    }
+  }, [0])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getCategories()
+        setCategories(categories)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+    fetchCategories()
+  }, [0])
+
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const offers = await getMerchantOffers()
+        setOffers(offers)
+      } catch (error) {
+        console.error('Error fetching offers:', error)
+      }
+    }
+    fetchOffers()
+  }, [0])
+
+  const handleCreateOffer = async (e) => {
+    e.preventDefault()
+    try {
+      if (formData.category_id === "") {
+        throw new Error('Category is required')
+      }
+      if (formData.discount === "") {
+        throw new Error('Discount is required')
+      }
+      if (formData.start_date === "") {
+        throw new Error('Start date is required')
+      }
+      if (formData.end_date === "") {
+        throw new Error('End date is required')
+      }
+
+      const newOffer = await addMerchantOffer(
+        {
+          category_id: formData.category_id,
+          discount: formData.discount,
+          start_date: formData.start_date,
+          end_date: formData.end_date,
+          merchant_id: merchant.id,
+          status: 'active',
+        }
+      )
+      setOffers([...offers, newOffer])
+    } catch (error) {
+      console.error('Error creating offer:', error)
+    }
   }
 
-  const handleDeleteOffer = (id) => {
-    setOffers(offers.filter(offer => offer.id !== id))
+  const handleDeleteOffer = async (id) => {
+    try {
+      await deleteMerchantOffer(id)
+      setOffers(offers.filter((offer) => offer.id !== id))
+    } catch (error) {
+      console.error('Error deleting offer:', error)
+    }
+  }
+
+  const handleUpdateOffer = async (id, data) => {
+    try {
+      const updatedOffer = await updateMerchantOffer(id, data)
+      setOffers(offers.map((offer) => (offer.id === id ? updatedOffer : offer)))
+    } catch (error) {
+      console.error('Error updating offer:', error)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="animate-spin h-8 w-8" />
+      </div>
+    )
   }
 
   return (
@@ -74,6 +183,13 @@ export default function MerchantDashboard() {
         </div>
       </header>
       <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Welcome back, {merchant?.contactName || 'Merchant'}.</h2>
+          <Button variant="outline" size="sm">
+            <ArrowUpRight className="h-4 w-4" />
+            Visit Store
+          </Button>
+        </div>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -174,57 +290,75 @@ export default function MerchantDashboard() {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Manage Offers</CardTitle>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <Plus className="mr-2 h-4 w-4" /> Create Offer
+                  {/* <Dialog>
+                    <DialogTrigger>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4" />
+                        Add New Offer
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Create New Offer</DialogTitle>
-                        <DialogDescription>
-                          Create a new offer for a product category. Click save when you&apos;re done.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="category" className="text-right">
-                            Category
-                          </Label>
-                          <Select>
-                            <SelectTrigger className="col-span-3">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="electronics">Electronics</SelectItem>
-                              <SelectItem value="clothing">Clothing</SelectItem>
-                              <SelectItem value="home">Home & Garden</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="discount" className="text-right">
-                            Discount
-                          </Label>
-                          <Input id="discount" className="col-span-3" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="startDate" className="text-right">
-                            Start Date
-                          </Label>
-                          <Input id="startDate" type="date" className="col-span-3" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="endDate" className="text-right">
-                            End Date
-                          </Label>
-                          <Input id="endDate" type="date" className="col-span-3" />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button type="submit">Save offer</Button>
-                      </DialogFooter>
+                  </Dialog> */}
+                  
+                  <Dialog>
+                    <DialogTrigger>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4" />
+                        Add New Offer
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <form onSubmit={handleCreateOffer}>
+                        <CardHeader>
+                          <CardTitle>Add New Offer</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <Label htmlFor="category">Category</Label>
+                            <Select onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
+                              <SelectTrigger id="category">
+                                <SelectValue placeholder='Select a category'></SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map((category) => (
+                                  <SelectItem value={category.id}>
+                                    {category.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <div className="space-y-2">
+                              <Label htmlFor="discount">Discount</Label>
+                              <Input
+                                id="discount"
+                                type="text"
+                                value={formData.discount}
+                                onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="start_date">Start Date</Label>
+                              <Input
+                                id="start_date"
+                                type="date"
+                                value={formData.start_date}
+                                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="end_date">End Date</Label>
+                              <Input
+                                id="end_date"
+                                type="date"
+                                value={formData.end_date}
+                                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                        <DialogFooter>
+                          <Button type="submit">Create Offer</Button>
+                        </DialogFooter>
+                      </form>
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -243,12 +377,12 @@ export default function MerchantDashboard() {
                   <TableBody>
                     {offers.map((offer) => (
                       <TableRow key={offer.id}>
-                        <TableCell className="font-medium">{offer.category}</TableCell>
+                        <TableCell className="font-medium">{categories.find((category) => category.id === offer.category_id)?.name}</TableCell>
                         <TableCell>{offer.discount}</TableCell>
-                        <TableCell>{offer.startDate}</TableCell>
-                        <TableCell>{offer.endDate}</TableCell>
+                        <TableCell>{offer.start_date}</TableCell>
+                        <TableCell>{offer.end_date}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => handleUpdateOffer(offer.id)}>
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="sm" onClick={() => handleDeleteOffer(offer.id)}>

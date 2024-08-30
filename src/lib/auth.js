@@ -132,6 +132,68 @@ export async function getUserData() {
   return user;
 }
 
+export async function getMerchantData() {
+  const merchantID = pb.authStore.model.id;
+  // get merchant data 
+  const merchant = await pb.collection('merchants').getOne(merchantID);
+  console.log("merchant data", merchant);
+  return merchant;
+}
+
+export async function updateUserData(data) {
+  const userID = pb.authStore.model.id;
+  // update user data 
+  const user = await pb.collection('users').update(userID, data);
+  return user;
+}
+
+export async function updateMerchantData(data) {
+  const merchantID = pb.authStore.model.id;
+  // update merchant data 
+  const merchant = await pb.collection('merchants').update(merchantID, data);
+  return merchant;
+}
+
+export async function getMerchantOffers() {
+  const merchantID = pb.authStore.model.id;
+  // get merchant offers
+  const offers = await pb.collection('offers').getFullList({ filter: `merchant_id.id="${merchantID}"` });
+  console.log('Merchant offers:', offers);
+  return offers;
+}
+
+export async function getMerchantOrders() {
+  const merchantID = pb.authStore.model.id;
+  // get merchant orders
+  const orders = await pb.collection('orders').getFullList({ filter: `merchant_id.id="${merchantID}"` });
+  return orders;
+}
+
+export async function getCategories() {
+  // get categories
+  const categories = await pb.collection('category').getFullList();
+  console.log('Categories:', categories);
+  return categories;
+}
+
+export async function addMerchantOffer(data) {
+  // add merchant offer
+  const offer = await pb.collection('offers').create(data);
+  return offer;
+}
+
+export async function updateMerchantOffer(offerID, data) {
+  // update merchant offer
+  const offer = await pb.collection('offers').update(offerID, data);
+  return offer;
+}
+
+export async function deleteMerchantOffer(offerID) {
+  // delete merchant offer
+  const offer = await pb.collection('offers').delete(offerID);
+  return offer;
+}
+
 export function isAuthenticated() {
   const isValid = pb.authStore.isValid;
   // console.log('Is authenticated:', isValid);
