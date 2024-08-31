@@ -77,7 +77,9 @@ export default function MerchantDashboard() {
       }
       fetchMerchantData()
     }
-  }, [0])
+  },
+  // run once
+  [merchant])
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -89,7 +91,9 @@ export default function MerchantDashboard() {
       }
     }
     fetchCategories()
-  }, [0])
+  }, 
+  // run once
+  [0])
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -101,7 +105,9 @@ export default function MerchantDashboard() {
       }
     }
     fetchOffers()
-  }, [0])
+  }, 
+  // run once
+  [0])
 
   const handleCreateOffer = async (e) => {
     e.preventDefault()
@@ -320,9 +326,7 @@ export default function MerchantDashboard() {
                               </SelectTrigger>
                               <SelectContent>
                                 {categories.map((category) => (
-                                  <SelectItem value={category.id}>
-                                    {category.name}
-                                  </SelectItem>
+                                  <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
