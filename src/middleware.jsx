@@ -12,7 +12,7 @@ export function middleware(request) {
   console.log('Auth token:', authToken);
 
   // List of paths that should be accessible without authentication
-  const publicPaths = ['/user/signup', '/user/login', '/merchant/signup', '/merchant/login'];
+  const publicPaths = ['/user/signup', '/user/offers', '/user/login', '/merchant/signup', '/merchant/login'];
 
   // If the path is in the publicPaths list, allow access
   console.log(path)
