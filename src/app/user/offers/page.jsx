@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import {
+  getDefaultSession,
+  handleIncomingRedirect,
+} from "@inrupt/solid-client-authn-browser";
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,16 +16,20 @@ import { Search, ShoppingBag, User, Bell, ChevronDown, Mountain } from "lucide-r
 import Link from "next/link"
 import Image from "next/image"
 import { signOut, getCurrentUser, getUserData } from '@/lib/auth'
+import { loginSolid, fetchPodData } from '@/lib/PODauth'
 
 export default function PersonalizedOffers() {
   const [user, setUser] = useState(null)
+  const [userPODSessionInfo, setUserPODSessionInfo] = useState(null);
+  const [userPOD, setUserPOD] = useState(null)
   const router = useRouter()
 
   useEffect(() => {
     const checkAuth = async () => {
       const currentUser = getCurrentUser()
       if (!currentUser) {
-        router.push('/')
+        // router.push('/')
+        console.log('No user found. Please log in.')
       } else {
         setUser(currentUser)
       }
@@ -29,19 +37,82 @@ export default function PersonalizedOffers() {
     checkAuth()
   }, [router])
 
+  // useEffect(() => {
+  //   if (user) {
+  //     const fetchUserData = async () => {
+  //       try {
+  //         const userData = await getUserData()
+  //         setUser(userData)
+  //       } catch (error) {
+  //         console.error('Error fetching user data:', error)
+  //       }
+  //     }
+  //     fetchUserData()
+  //   }
+  // }, [user])
+
+  useEffect (() => {
+    setUserPODSessionInfo(undefined)
+    const redirectUrl = new URL(window.location.href)
+
+    // make the redirect URL filepath to be user/offers
+    redirectUrl.pathname = '/user/offers'
+
+    handleIncomingRedirect({
+      restorePreviousSession: true,
+      url: redirectUrl,
+    }).then((sessionInfo) => {
+      if (sessionInfo && sessionInfo.isLoggedIn) {
+        setUserPODSessionInfo(sessionInfo)
+      } else {
+        setUserPODSessionInfo(null)
+      }
+    })
+    const defaultSession = getDefaultSession();
+    const logoutListener = () => {
+      setUserPODSessionInfo(null);
+    }
+    const restoreListener = () => {
+      router.push('/user/offers')
+    }
+    defaultSession.events.on("logout", logoutListener);
+    defaultSession.events.on("sessionRestore", restoreListener);
+    return () => {
+      defaultSession.events.removeListener("logout", logoutListener);
+      defaultSession.events.removeListener("sessionRestore", restoreListener);
+    }
+
+  }, [router])
+  // login to user's POD'
   useEffect(() => {
-    if (user) {
-      const fetchUserData = async () => {
+    if (user && !userPODSessionInfo) {
+      const loginToPOD = async () => {
         try {
-          const userData = await getUserData()
-          setUser(userData)
+          const session = await loginSolid(user.podIssuer || 'https://server1.sgpod.co');
+          console.log('Logged in to POD:', session)
+          setUserPODSessionInfo(session)
+        } catch (error) {
+          console.error('Error logging in to POD:', error)
+        }
+      }
+      loginToPOD()
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (userPODSessionInfo && !userPOD) {
+      const fetchUserPODData = async () => {
+        try {
+          const userData = await fetchPodData(userPODSessionInfo)
+          setUserPOD(userData)
         } catch (error) {
           console.error('Error fetching user data:', error)
         }
       }
-      fetchUserData()
+      fetchUserPODData()
     }
-  }, [user])
+  }, [userPOD])
+
 
   if (!user) {
     return <div>No user found. Please log in.</div>
