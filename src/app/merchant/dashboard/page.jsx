@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { ArrowUpRight, Package, DollarSign, ShoppingCart, Users, Search, Plus, Pencil, Trash2, LoaderCircle } from "lucide-react"
+import { ArrowUpRight, Package, DollarSign, ShoppingCart, Users, LogOut, Search, Plus, Pencil, Trash2, LoaderCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getCurrentMerchant, getMerchantData, getCategories, updateMerchantData, getMerchantOrders, getMerchantOffers, addMerchantOffer, updateMerchantOffer, deleteMerchantOffer } from '@/lib/auth'
+import { getCurrentMerchant, signOut, getMerchantData, getCategories, updateMerchantData, getMerchantOrders, getMerchantOffers, addMerchantOffer, updateMerchantOffer, deleteMerchantOffer } from '@/lib/auth'
 
 
 export default function MerchantDashboard() {
@@ -159,6 +159,15 @@ export default function MerchantDashboard() {
     }
   }
 
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/merchant/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -173,17 +182,9 @@ export default function MerchantDashboard() {
         <div className="flex h-16 items-center px-4">
           <h1 className="text-2xl font-bold">Merchant Dashboard</h1>
           <div className="ml-auto flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Users className="h-5 w-5" />
-              <span className="sr-only">Customers</span>
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Package className="h-5 w-5" />
-              <span className="sr-only">Products</span>
+            <Button variant="destructive" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
             </Button>
           </div>
         </div>

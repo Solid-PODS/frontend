@@ -1,6 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import {
+  getDefaultSession,
+  login,
+  handleIncomingRedirect,
+} from "@inrupt/solid-client-authn-browser";
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,39 +17,99 @@ import { Search, ShoppingBag, User, Bell, ChevronDown, Mountain } from "lucide-r
 import Link from "next/link"
 import Image from "next/image"
 import { signOut, getCurrentUser, getUserData } from '@/lib/auth'
+import { loginSolid, fetchPodData } from '@/lib/PODauth'
 
 export default function PersonalizedOffers() {
-  const [user, setUser] = useState(null)
-  const router = useRouter()
+  const [user, setUser] = useState(null);
+  const [userPODSessionInfo, setUserPODSessionInfo] = useState(null);
+  const [userPOD, setUserPOD] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
+  // Initial Auth Check
   useEffect(() => {
     const checkAuth = async () => {
-      const currentUser = getCurrentUser()
-      if (!currentUser) {
-        router.push('/')
-      } else {
-        setUser(currentUser)
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
       }
-    }
-    checkAuth()
-  }, [router])
+      setIsLoading(false); // Stop loading once the check is complete
+    };
+    checkAuth();
+  }, []);
 
+  // Handle Incoming Redirect after External Login
   useEffect(() => {
-    if (user) {
-      const fetchUserData = async () => {
-        try {
-          const userData = await getUserData()
-          setUser(userData)
-        } catch (error) {
-          console.error('Error fetching user data:', error)
-        }
+    const handleRedirect = () => {
+      try {
+        handleIncomingRedirect({
+          restorePreviousSession: true,
+        }).then((info) => {
+          console.log('Redirect info:', info);
+          console.log(`Logged in with WebID [${info.webId}]`);
+          setUserPODSessionInfo(
+            info
+          );
+        })
+      } catch (error) {
+        console.error('Error handling redirect:', error);
       }
-      fetchUserData()
+    };
+  
+    if (!getDefaultSession().info.isLoggedIn) {
+      console.log("Checking for incoming redirect...");
+      handleRedirect();
+    } else {
+      console.log("Session already established:", getDefaultSession().info.isLoggedIn);
+      console.log("User:", user);
+      console.log("User POD Session Info:", userPODSessionInfo);
     }
-  }, [user])
+  }, []);
+
+  // Log in to POD if not already logged in
+  useEffect(() => {
+    if (user && !getDefaultSession().info.isLoggedIn) {
+      const loginToPOD = async () => {
+        try {
+          // const session = await loginSolid(user.podIssuer || 'https://server1.sgpod.co');
+          const session = await login({
+            oidcIssuer: user.podIssuer || 'https://server1.sgpod.co',
+            redirectUrl: new URL("/user/callback", window.location.origin).href.toString(),
+          })
+          console.log('Logged in to POD:', session);
+        } catch (error) {
+          console.error('Error logging in to POD:', error);
+        }
+      };
+      loginToPOD();
+    }
+  }, [user, userPODSessionInfo]);
+
+  // Fetch POD Data if session is active
+  useEffect(() => {
+    if (user && !userPOD && getDefaultSession().info.isLoggedIn) {
+      if (getDefaultSession().info.webId) {
+        const fetchUserPODData = async () => {
+          try {
+            const userData = await fetchPodData();
+            setUserPOD(userData);
+            console.log('User POD data:', userData);
+          } catch (error) {
+            console.error('Error fetching user POD data:', error);
+          }
+        };
+        console.log('Fetching user POD data...');
+        fetchUserPODData();
+      }
+    }
+  }, [user, userPOD, userPODSessionInfo]);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Prevents rendering before auth check completes
+  }
 
   if (!user) {
-    return <div>No user found. Please log in.</div>
+    return <div>No user found. Please log in.</div>;
   }
 
   return (

@@ -1,38 +1,31 @@
 import { NextResponse } from 'next/server';
 
-import { useAuth } from '@/lib/useAuth'; // Import the useAuth hook
-
 export function middleware(request) {
-  
   const authToken = request.cookies.get('pb_auth')?.value;
-  const path = request.nextUrl.pathname;
+  const path = request.nextUrl.pathname.split('?')[0];
 
   // Log for debugging
   console.log('Middleware called for path:', path);
   console.log('Auth token:', authToken);
 
-  // List of paths that should be accessible without authentication
-  const publicPaths = ['/user/signup', '/user/login', '/merchant/signup', '/merchant/login'];
+  const publicPaths = ['/user/signup', '/user/offers', '/user/callback', '/user/login', '/merchant/signup', '/merchant/login'];
 
-  // If the path is in the publicPaths list, allow access
-  console.log(path)
+  // Public path access check
   if (publicPaths.includes(path)) {
+    console.log(`Path "${path}" is public, allowing access.`);
     return NextResponse.next();
   }
 
-  // For all other paths under /user or /merchant, check for authentication
+  // Authenticated paths check
   if (path.startsWith('/user/') || path.startsWith('/merchant/')) {
     if (!authToken) {
-      // Redirect to home page if not authenticated
       console.log('No auth token found, redirecting to home');
       return NextResponse.redirect(new URL('/', request.url));
+    } else {
+      console.log('Auth token found, allowing access.');
     }
   }
 
-  // For all other routes, allow access
+  // Allow access for all other paths
   return NextResponse.next();
 }
-
-// export const config = {
-//   matcher: ['/user/:path*', '/merchant/:path*'],
-// };
