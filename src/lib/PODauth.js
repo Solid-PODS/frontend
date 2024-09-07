@@ -1,4 +1,4 @@
-import { getSolidDataset, getThing, getStringNoLocale, responseToResourceInfo, isRawData, responseToSolidDataset, overwriteFile } from "@inrupt/solid-client";
+import { getSolidDataset, getThing, getContentType, getSourceUrl, getFile, getStringNoLocale, responseToResourceInfo, isRawData, responseToSolidDataset, overwriteFile } from "@inrupt/solid-client";
 import { login, getDefaultSession, fetch } from "@inrupt/solid-client-authn-browser";
 import { redirect } from "next/dist/server/api-utils";
 
@@ -6,7 +6,8 @@ export async function loginSolid(issuer) {
     const session = getDefaultSession();
     const oidcIssuer = new URL(issuer);
     console.log("Logging in with OIDC issuer:", oidcIssuer);
-    // ensure url starts with https and ends with a /
+
+    // Ensure URL starts with https and ends with a /
     oidcIssuer.protocol = "https:";
     oidcIssuer.pathname = oidcIssuer.pathname.endsWith("/") ? oidcIssuer.pathname : `${oidcIssuer.pathname}/`;
 
@@ -15,8 +16,8 @@ export async function loginSolid(issuer) {
 
     if (!session.info.isLoggedIn) {
         return await login({
-        oidcIssuer: oidcIssuer.href,
-        redirectUrl: redirectUrl.href,
+            oidcIssuer: oidcIssuer.href,
+            redirectUrl: redirectUrl.href,
         });
     }
 
@@ -40,32 +41,19 @@ export async function fetchPodData() {
 
     // Step 2: get user's Pod
     const fetcher = session.fetch;
-    const webIdDoc = await fetcher(session.info.webId);
-    const webIdDocUrl = webIdDoc.url;
-    const webIdDataset = await responseToSolidDataset(webIdDoc);
-    const profile = getThing(webIdDataset, webIdDocUrl);
-    const podUrl = getStringNoLocale(profile, "http://www.w3.org/ns/pim/space#storage");
+    const podUrl = session.info.webId.replace("/profile/card#me", "/");
 
     // Step 3: fetch data from the Pod
     // Filepath: mastercard/mastercardtransactions/mastercard-data.json
     const fileUrl = `${podUrl}mastercard/mastercardtransactions/mastercard-data.json`;
-    const fileDataset = await getSolidDataset(fileUrl, { fetcher });
-    const fileThing = getThing(fileDataset, fileUrl);
-    const fileResource = responseToResourceInfo(fileDataset, fileUrl);
-    if (!isRawData(fileResource)) {
-        console.error("The fetched data is not raw data.");
-        return;
-    }
-    const fileContent = fileResource.data;
 
-    // Step 4: return json data
-    try {
-        const data = JSON.parse(fileContent);
-        return data;
-    }
-    catch (error) {
-        console.error("Error parsing JSON data:", error);
-    }
+    const fileResource = await getFile(
+        fileUrl,
+        { fetch: fetcher }
+    );
 
-    return;
+    // Step 4: parse blob to json
+    const fileContent = JSON.parse(await fileResource.text());
+    console.log("File content:", fileContent);
+    return fileContent;
 }

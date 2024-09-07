@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { ArrowUpRight, Package, DollarSign, ShoppingCart, Users, Search, Plus, Pencil, Trash2, LoaderCircle } from "lucide-react"
+import { ArrowUpRight, Package, DollarSign, ShoppingCart, Users, LogOut, Search, Plus, Pencil, Trash2, LoaderCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
