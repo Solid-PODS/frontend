@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.2",
     "@inrupt/solid-client": "^2.1.0",
     "@inrupt/solid-client-authn-browser": "^2.2.4",
     "@radix-ui/react-avatar": "^1.1.0",

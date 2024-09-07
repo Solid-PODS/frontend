@@ -18,13 +18,17 @@ import Link from "next/link"
 import Image from "next/image"
 import { signOut, getCurrentUser, getUserData } from '@/lib/auth'
 import { loginSolid, fetchPodData } from '@/lib/PODauth'
+import Anthropic from '@anthropic-ai/sdk';
 
 export default function PersonalizedOffers() {
   const [user, setUser] = useState(null);
   const [userPODSessionInfo, setUserPODSessionInfo] = useState(null);
   const [userPOD, setUserPOD] = useState(null);
+  const [userRecommendations, setUserRecommendations] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+  const anthropic = new Anthropic({apiKey: apiKey, dangerouslyAllowBrowser: true});
 
   // Initial Auth Check
   useEffect(() => {
@@ -103,6 +107,88 @@ export default function PersonalizedOffers() {
       }
     }
   }, [user, userPOD, userPODSessionInfo]);
+
+  // get user recommendations
+  useEffect(() => {
+    if (userPOD) { 
+      const getUserRecommendations = async () => {
+        try {
+          const merchantOffers = [
+              {
+                "offerName": "50% Off Air Jordans",
+                "merchant": "Amazon",
+                "expiryDate": "2024-09-30"
+              },
+              {
+                "offerName": "40% Off iPhone Case",
+                "merchant": "Shopee",
+                "expiryDate": "2024-09-15"
+              },
+              {
+                "offerName": "25% Off AirPods",
+                "merchant": "Apple Store",
+                "expiryDate": "2024-10-01"
+              },
+              {
+                "offerName": "30% Off Samsung Galaxy S21",
+                "merchant": "Samsung Store",
+                "expiryDate": "2024-09-25"
+              },
+              {
+                "offerName": "20% Off Nike Shoes",
+                "merchant": "Nike Store",
+                "expiryDate": "2024-09-20"
+              },
+              {
+                "offerName": "15% Off Adidas Apparel",
+                "merchant": "Adidas Store",
+                "expiryDate": "2024-09-18"
+              },
+              {
+                "offerName": "10% Off Sony Headphones",
+                "merchant": "Sony Store",
+                "expiryDate": "2024-09-22"
+              },
+              {
+                "offerName": "5% Off Xiaomi Products",
+                "merchant": "Xiaomi Store",
+                "expiryDate": "2024-09-24"
+              },
+              {
+                "offerName": "Free Shipping on All Orders",
+                "merchant": "Lazada",
+                "expiryDate": "2024-09-30"
+              }
+          ]
+          // stringified merchant offers
+          const merchantOffersString = JSON.stringify(merchantOffers);
+          const userPODString = JSON.stringify(userPOD);
+          const recommendations = await anthropic.messages.create({
+            model: 'claude-3-5-sonnet-20240620',
+            max_tokens: 512,
+            messages: [
+              {
+                role : 'user',
+                content : `You're a Recommendation AI. Recommend the best 6 offers for
+                 ${userPODString} based on the merchant offers ${merchantOffersString}
+                 and output ONLY in JSON format with keys: offerName (string), merchant (string), expiryDate (dd-mm-yyyy).
+
+                 You are to return only the JSON object containing the offerName, merchant and expiryDate of the best offer for the user.
+                 Remove the \n and \t characters from the output.`
+              }
+            ]
+          });
+          // console.log('Recommendations:', recommendations);
+          setUserRecommendations(JSON.parse(recommendations.content[0].text));
+          console.log('User recommendations:', JSON.parse(recommendations.content[0].text));
+        } catch (error) {
+          console.error('Error getting user recommendations:', error);
+        }
+      };
+      getUserRecommendations();
+    }
+  }, [userPOD]);
+
 
   if (isLoading) {
     return <div>Loading...</div>; // Prevents rendering before auth check completes
@@ -183,33 +269,24 @@ export default function PersonalizedOffers() {
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-bold mb-6">Personalized Offers for {user.username || 'Anonymous User'}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { store: "FashionHub", cashback: "10%", image: "/placeholder.svg?height=100&width=100" },
-                { store: "TechZone", cashback: "8%", image: "/placeholder.svg?height=100&width=100" },
-                { store: "HomeDecor", cashback: "12%", image: "/placeholder.svg?height=100&width=100" },
-                { store: "TravelEase", cashback: "5%", image: "/placeholder.svg?height=100&width=100" },
-                { store: "FoodieDeals", cashback: "15%", image: "/placeholder.svg?height=100&width=100" },
-                { store: "BeautyBliss", cashback: "7%", image: "/placeholder.svg?height=100&width=100" },
-              ].map((offer, index) => (
+              {userRecommendations && userRecommendations.length > 0 ? userRecommendations.map((offer, index) => (
                 <Card key={index}>
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Avatar>
-                        <AvatarImage src={offer.image} alt={offer.store} />
-                        <AvatarFallback>{offer.store[0]}</AvatarFallback>
-                      </Avatar>
-                      <span>{offer.store}</span>
-                    </CardTitle>
+                    <Avatar className="bg-primary">
+                      <Mountain className="h-6 w-6" />
+                    </Avatar>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold text-primary">{offer.cashback} Cashback</p>
-                    <p className="text-sm text-muted-foreground">on all purchases</p>
+                    <CardTitle>{offer.offerName}</CardTitle>
+                    <CardDescription>{offer.merchant}</CardDescription>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full">Shop Now</Button>
+                    <span className="text-sm text-muted-foreground">Expires on {offer.expiryDate}</span>
                   </CardFooter>
                 </Card>
-              ))}
+              )) : (
+                <div className="text-center text-lg text-muted-foreground">No offers available.</div>
+              )}
             </div>
           </div>
         </section>
