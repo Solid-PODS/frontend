@@ -16,7 +16,7 @@ import { Footer } from "@/components/footer"
 import { Search, ShoppingBag, User, Bell, ChevronDown, Mountain } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { signOut, getCurrentUser, getOffers, getUserData } from '@/lib/auth'
+import { signOut, getCurrentUser, getOffersWithDetails, getUserData } from '@/lib/auth'
 import { loginSolid, fetchPodData } from '@/lib/PODauth'
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -113,62 +113,63 @@ export default function PersonalizedOffers() {
     if (userPOD) { 
       const getUserRecommendations = async () => {
         try {
-          const merchantOffers = await getOffers() || [
-              {
-                "category": "Electronics",
-                "offerName": "50% Off Air Jordans",
-                "merchant": "Amazon",
-                "expiryDate": "2024-09-30"
-              },
-              {
-                "category": "Electronics",
-                "offerName": "40% Off iPhone Case",
-                "merchant": "Shopee",
-                "expiryDate": "2024-09-15"
-              },
-              {
-                "category": "Electronics",
-                "offerName": "25% Off AirPods",
-                "merchant": "Apple Store",
-                "expiryDate": "2024-10-01"
-              },
-              {
-                "category": "Electronics",
-                "offerName": "30% Off Samsung Galaxy S21",
-                "merchant": "Samsung Store",
-                "expiryDate": "2024-09-25"
-              },
-              {
-                "category": "Electronics",
-                "offerName": "20% Off Nike Shoes",
-                "merchant": "Nike Store",
-                "expiryDate": "2024-09-20"
-              },
-              {
-                "category": "Electronics",
-                "offerName": "15% Off Adidas Apparel",
-                "merchant": "Adidas Store",
-                "expiryDate": "2024-09-18"
-              },
-              {
-                "category": "Electronics",
-                "offerName": "10% Off Sony Headphones",
-                "merchant": "Sony Store",
-                "expiryDate": "2024-09-22"
-              },
-              {
-                "category": "Electronics",
-                "offerName": "5% Off Xiaomi Products",
-                "merchant": "Xiaomi Store",
-                "expiryDate": "2024-09-24"
-              },
-              {
-                "category": "Storewide",
-                "offerName": "Free Shipping on All Orders",
-                "merchant": "Lazada",
-                "expiryDate": "2024-09-30"
-              }
-          ];
+          const merchantOffers = await getOffersWithDetails()
+          // const temp = [
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "50% Off Air Jordans",
+          //       "merchant": "Amazon",
+          //       "expiryDate": "2024-09-30"
+          //     },
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "40% Off iPhone Case",
+          //       "merchant": "Shopee",
+          //       "expiryDate": "2024-09-15"
+          //     },
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "25% Off AirPods",
+          //       "merchant": "Apple Store",
+          //       "expiryDate": "2024-10-01"
+          //     },
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "30% Off Samsung Galaxy S21",
+          //       "merchant": "Samsung Store",
+          //       "expiryDate": "2024-09-25"
+          //     },
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "20% Off Nike Shoes",
+          //       "merchant": "Nike Store",
+          //       "expiryDate": "2024-09-20"
+          //     },
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "15% Off Adidas Apparel",
+          //       "merchant": "Adidas Store",
+          //       "expiryDate": "2024-09-18"
+          //     },
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "10% Off Sony Headphones",
+          //       "merchant": "Sony Store",
+          //       "expiryDate": "2024-09-22"
+          //     },
+          //     {
+          //       "category": "Electronics",
+          //       "offerName": "5% Off Xiaomi Products",
+          //       "merchant": "Xiaomi Store",
+          //       "expiryDate": "2024-09-24"
+          //     },
+          //     {
+          //       "category": "Storewide",
+          //       "offerName": "Free Shipping on All Orders",
+          //       "merchant": "Lazada",
+          //       "expiryDate": "2024-09-30"
+          //     }
+          // ];
           console.log('Merchant offers:', merchantOffers);
 
           // stringified merchant offers
@@ -191,10 +192,11 @@ export default function PersonalizedOffers() {
           });
           // console.log('Recommendations:', recommendations);
           var userRecommendations = JSON.parse(recommendations.content[0].text);
-          // if only one recommendation is returned, convert it to an array
+          // unpack the recommendations if it is stored in {key: []}
           if (!Array.isArray(userRecommendations)) {
-            userRecommendations = [userRecommendations];
+            userRecommendations = Object.values(userRecommendations)[0];
           }
+
           setUserRecommendations(userRecommendations);
           console.log('User recommendations:', userRecommendations);
         } catch (error) {

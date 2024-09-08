@@ -182,6 +182,43 @@ export async function getOffers() {
   return offers;
 }
 
+export async function getMerchants() {
+  // get merchants
+  const merchants = await pb.collection('merchants').getFullList();
+  return merchants;
+}
+
+export async function getOffersWithDetails() {
+  // Fetch offers, merchants, and categories
+  const offers = await getOffers();
+  const merchants = await getMerchants(); // Fetch merchants data
+  const categories = await getCategories(); // Fetch categories data
+
+  // Create a mapping for merchant names and category names
+  const merchantMap = merchants.reduce((acc, merchant) => {
+    acc[merchant.id] = merchant.merchantName; // Assuming each merchant has an 'id' and 'name'
+    return acc;
+  }, {});
+
+  const categoryMap = categories.reduce((acc, category) => {
+    acc[category.id] = category.name; // Assuming each category has an 'id' and 'name'
+    return acc;
+  }, {});
+
+  // Map offers to the desired format
+  const formattedOffers = offers.map((offer) => {
+    return {
+      merchant_name: merchantMap[offer.merchant_id] || 'Unknown Merchant',
+      category_name: categoryMap[offer.category_id] || 'Unknown Category',
+      discount: offer.discount,
+      start_date: offer.start_date,
+      end_date: offer.end_date,
+    };
+  });
+
+  return formattedOffers;
+}
+
 export async function addMerchantOffer(data) {
   // add merchant offer
   const offer = await pb.collection('offers').create(data);
