@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { House, DollarSign, Lock, LogOut, Mail, LoaderCircle } from "lucide-react"
-import { signOut, getCurrentUser, getUserData } from '@/lib/auth'
+import { signOut, getCurrentUser, getCategories, getUserData } from '@/lib/auth'
 import { toast } from '@/components/ui/use-toast'
 
 export default function ProtectedUserProfile() {
@@ -23,6 +23,7 @@ export default function ProtectedUserProfile() {
     contacts: false,
   })
   const [user, setUser] = useState(null)
+  const [categories, setCategories] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
@@ -67,7 +68,27 @@ export default function ProtectedUserProfile() {
           })
         }
       }
+      const fetchCategories = async () => {
+        try {
+          const categories = await getCategories()
+          // add a checked property to each category
+          categories.forEach((category) => {
+            category.checked = true
+          })
+          setCategories(categories)
+        } catch (error) {
+          console.error('Error fetching categories:', error)
+          toast({
+            title: "Error",
+            description: "Failed to fetch categories. Please try again.",
+            variant: "destructive",
+          })
+        }
+      }
       fetchUserData()
+      if (!categories.length) {
+        fetchCategories()
+      }
     }
   }, [user])
 
@@ -171,7 +192,38 @@ export default function ProtectedUserProfile() {
           </CardContent>
         </Card>
       </div>
-
+      <Card>
+        <CardHeader>
+          <CardTitle>Preferences</CardTitle>
+          <CardDescription>Your personalisation preferences</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-medium mb-2">Categories of Interest</h3>
+              <div className="space-y-2">
+                {categories.map((category) => (
+                  <div key={category.id} className="flex items-center justify-between">
+                    <span className="capitalize">{category.name}</span>
+                    <Switch
+                      checked={category.checked}
+                      onCheckedChange={(checked) => {
+                        setCategories((prev) => prev.map((c) => {
+                          if (c.id === category.id) {
+                            // toggle the checked property
+                            return { ...c, checked }
+                          }
+                          return c
+                        }))
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Access Management</CardTitle>
