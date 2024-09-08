@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Store, Mail, Lock } from "lucide-react"
+import { Store, Mail, Lock, ArrowLeft } from "lucide-react"
 import { signInMerchant } from '@/lib/auth';
 import { useAuth } from '@/lib/useAuth'; // Import the useAuth hook
 
@@ -56,6 +56,11 @@ export default function MerchantLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
+          {/* back button to go back to / */}
+          <Link href="/">
+            <ArrowLeft className="h-6 w-6 text-primary" />
+          </Link>
+          <Store className="mx-auto h-12 w-12 text-primary" />
           <CardTitle className="text-2xl font-bold text-center">Sign in to your Merchant Account</CardTitle>
           <CardDescription className="text-center">
             Enter your email and password to access your merchant dashboard

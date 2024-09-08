@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Github, Mail } from "lucide-react"
+import { Github, Mail, ArrowLeft } from "lucide-react"
 import { useAuth } from '@/lib/useAuth'; // Import the useAuth hook
 import { signIn } from '@/lib/auth'; // Import the signIn function
 
@@ -62,6 +62,9 @@ export default function UserLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
+          <Link href="/">
+            <ArrowLeft className="h-6 w-6 cursor-pointer" />
+          </Link>
           <CardTitle className="text-2xl font-bold text-center">Sign in to your account</CardTitle>
           <CardDescription className="text-center">
             Enter your email below to login to your account
