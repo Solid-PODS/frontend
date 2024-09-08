@@ -21,6 +21,7 @@ import { signUp } from '@/lib/auth'; // Import the signUp function
 export default function UserSignUp() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [podIssuer, setPodIssuer] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -48,6 +49,11 @@ export default function UserSignUp() {
       setError("You must agree to the terms of service and privacy policy");
       return;
     }
+
+    if (!podIssuer) {
+      setError("You must enter a pod issuer");
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -61,6 +67,8 @@ export default function UserSignUp() {
         setError(data.username.message);
       } else if ("password" in data) {
         setError(data.password.message);
+      } else if ("podIssuer" in data) {
+        setError(data.podIssuer.message);
       } else {
         setError(err.message || 'Failed to sign up');
       }
@@ -104,6 +112,16 @@ export default function UserSignUp() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="m@example.com" 
                 required 
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="pod-issuer" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Pod Issuer</label>
+              <Input
+                id="pod-issuer"
+                value={podIssuer}
+                onChange={(e) => setPodIssuer(e.target.value)}
+                placeholder="https://pod.example.com"
+                required
               />
             </div>
             <div className="space-y-2">

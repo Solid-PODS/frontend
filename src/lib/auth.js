@@ -21,11 +21,12 @@ function getCookie(cookieName) {
   return null; // Return null if not found or if running on the server
 }
 
-export async function signUp(email, password, name) {
+export async function signUp(email, password, name, podIssuer) {
   const data = {
     username: name,
     email: email,
     email_visibility: true,
+    podIssuer: podIssuer,
     password: password,
     passwordConfirm: password,
   };
