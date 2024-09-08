@@ -176,6 +176,12 @@ export async function getCategories() {
   return categories;
 }
 
+export async function getOffers() {
+  // get offers
+  const offers = await pb.collection('offers').getFullList();
+  return offers;
+}
+
 export async function addMerchantOffer(data) {
   // add merchant offer
   const offer = await pb.collection('offers').create(data);

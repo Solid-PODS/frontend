@@ -13,9 +13,14 @@ export default function Callback() {
                 url: window.location.href,
             }).then((sessionInfo) => {
                 // check if webId is present in sessionInfo
-                if (!sessionInfo.webId) {
-                    console.error('No WebID found in sessionInfo:', sessionInfo)
-                    return
+                if (!sessionInfo) {
+                    if (!(
+                        typeof sessionInfo === 'object' &&
+                        sessionInfo.hasOwnProperty('webId')
+                    )) {
+                        console.error('No WebID found in sessionInfo:', sessionInfo)
+                        return
+                    }
                 }
 
                 console.log('Logged in with WebID:', sessionInfo.webId)

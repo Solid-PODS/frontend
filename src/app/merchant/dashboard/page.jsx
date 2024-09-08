@@ -66,7 +66,7 @@ export default function MerchantDashboard() {
   }, [router])
 
   useEffect(() => {
-    if (merchant) {
+    if (!merchant) {
       const fetchMerchantData = async () => {
         try {
           const merchantData = await getMerchantData()
@@ -90,10 +90,12 @@ export default function MerchantDashboard() {
         console.error('Error fetching categories:', error)
       }
     }
-    fetchCategories()
+    if (merchant && !categories.length) {
+      fetchCategories()
+    }
   }, 
   // run once
-  [0])
+  [merchant])
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -104,10 +106,12 @@ export default function MerchantDashboard() {
         console.error('Error fetching offers:', error)
       }
     }
-    fetchOffers()
+    if (merchant && !offers.length) {
+      fetchOffers()
+    }
   }, 
   // run once
-  [0])
+  [merchant])
 
   const handleCreateOffer = async (e) => {
     e.preventDefault()
