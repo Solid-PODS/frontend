@@ -188,6 +188,8 @@ export default function PersonalizedOffers() {
                 Choose the top 6 offers in: 
                 ${merchantOffersString}
 
+                Make the offerName more interesting and enticing based on the user's history.
+
                 Output ONLY in JSON format with keys: offerName (string), merchant (string), expiryDate (dd-mm-yyyy).
                 Do not include the \n and \t characters in the output.`
               }
@@ -306,7 +308,7 @@ export default function PersonalizedOffers() {
                   </CardFooter>
                 </Card>
               )) : (
-                <div className="text-center text-lg text-muted-foreground">No offers available.</div>
+                <div className="text-start text-lg text-muted-foreground">No offers available.</div>
               )}
             </div>
           </div>
