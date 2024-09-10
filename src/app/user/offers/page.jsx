@@ -181,12 +181,15 @@ export default function PersonalizedOffers() {
             messages: [
               {
                 role : 'user',
-                content : `You're a Recommendation AI. Recommend the best 6 offers for
-                 ${userPODString} based on the merchant offers ${merchantOffersString}
-                 and output ONLY in JSON format with keys: offerName (string), merchant (string), expiryDate (dd-mm-yyyy).
+                content : `You're a Recommendation AI trained to choose the best offers for a user based on their transaction history. 
+                Based on the transaction history:
+                ${userPODString}
 
-                 You are to return only the JSON object containing the offerName, merchant and expiryDate of the best offer for the user.
-                 Remove the \n and \t characters from the output.`
+                Choose the top 6 offers in: 
+                ${merchantOffersString}
+
+                Output ONLY in JSON format with keys: offerName (string), merchant (string), expiryDate (dd-mm-yyyy).
+                Do not include the \n and \t characters in the output.`
               }
             ]
           });
